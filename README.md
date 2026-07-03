@@ -1,58 +1,88 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gestion des Heures — UVCI
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application de gestion et de calcul automatisé des heures d'enseignement pour les enseignants de l'UVCI (déclaration d'activités pédagogiques, calcul du volume horaire, validation hiérarchique, états récapitulatifs).
 
-## About Laravel
+## Stack technique
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **PHP** 8.3+ / **Laravel** 13.8
+- **Base de données** : SQLite par défaut (configurable en MySQL/PostgreSQL via `.env`)
+- **barryvdh/laravel-dompdf** — génération des fiches PDF
+- **maatwebsite/excel** — exports Excel
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+L'application est alors disponible sur `http://localhost:8000`.
 
-## Contributing
+> Si vous préférez MySQL/PostgreSQL, modifiez `DB_CONNECTION` et les variables `DB_*` dans `.env` avant `php artisan migrate`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Comptes de test (créés par le seeder)
 
-## Code of Conduct
+| Rôle | Email | Mot de passe |
+|---|---|---|
+| Administrateur | admin@uvci.edu.ci | admin2026 |
+| Secrétaire | secretaire@uvci.edu.ci | secret2026 |
+| Enseignant (Konan Yao Jean-Paul) | konan.yao@uvci.edu.ci | prof2026 |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Une année académique 2025-2026 est créée active par défaut, ainsi que le département INFO et les coefficients de calcul de base.
 
-## Security Vulnerabilities
+## Rôles et accès
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **admin** : accès complet, y compris les Paramètres (années, coefficients, départements, comptes utilisateurs).
+- **secretaire** : gestion des enseignants, cours, séquences, ressources, activités, validations, calcul des heures, états récapitulatifs — sans accès aux Paramètres.
+- **enseignant** : accès à son Espace enseignant uniquement (déclaration de ses activités, consultation de son volume horaire, téléchargement de sa fiche).
 
-## License
+## Fonctionnement du calcul des heures
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Le volume horaire d'une activité pédagogique est calculé automatiquement selon la formule :
+
+```
+volume_horaire = nombre_sequences (du cours) x coefficient (type_action + niveau_contenu)
+```
+
+Les coefficients sont paramétrables dans Paramètres -> Coefficients de calcul et dépendent de deux critères :
+- type_action : creation ou mise_a_jour
+- niveau_contenu : 1 (contenus simples), 2 (interactifs), 3 (simulations)
+
+## Modèle de données — points clés
+
+- Enseignant appartient à un Departement et réalise des ActivitePedagogique.
+- ActivitePedagogique est rattachée à une AnneeAcademique (via le Cours concerné) et peut porter sur une ou plusieurs RessourcePedagogique (champ activite_id, optionnel — à renseigner manuellement lors de la création/modification d'une ressource).
+- Cours structure des SequencePedagogique, qui contiennent des RessourcePedagogique.
+- Une activité passe par les statuts en_attente -> valide / rejete (workflow de validation).
+
+## Routes principales
+
+| Route | Accès | Description |
+|---|---|---|
+| /tableau-de-bord | admin, secretaire | Vue d'ensemble et statistiques |
+| /enseignants | admin, secretaire | Gestion des enseignants |
+| /cours | admin, secretaire | Gestion des cours |
+| /sequences | admin, secretaire | Gestion des séquences pédagogiques |
+| /ressources | admin, secretaire | Gestion des ressources pédagogiques |
+| /activites | admin, secretaire | Déclaration et suivi des activités |
+| /validations | admin, secretaire | Validation/rejet des activités en attente |
+| /calcul-heures | admin, secretaire | Calcul et détail du volume horaire par enseignant |
+| /etats-recapitulatifs | admin, secretaire | Exports (fiches PDF, état global Excel) |
+| /parametres | admin | Années, coefficients, départements, comptes |
+| /espace-enseignant | enseignant | Auto-déclaration et suivi personnel |
+
+## Commandes utiles
+
+```bash
+php artisan migrate:fresh --seed   # réinitialiser la base avec les données de démo
+php artisan route:list             # lister les routes
+php artisan optimize:clear         # vider les caches après modification de config/routes
+```
+
+## Notes de version
+
+- La colonne `ressources_pedagogiques.activite_id` (association "porter" du MCD) a été ajoutée par la migration `2026_07_03_192730_add_activite_id_to_ressources_pedagogiques_table`. Elle est nullable : les ressources créées avant cette migration ne sont pas rattachées automatiquement à une activité.
