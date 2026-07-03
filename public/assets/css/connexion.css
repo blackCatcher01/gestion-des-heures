@@ -1,0 +1,398 @@
+/* ================================================================
+   UVCI — Page de connexion
+   Styles spécifiques
+   ================================================================ */
+
+:root {
+    --couleur-principale:  #4361EE;
+    --couleur-secondaire:  #7209B7;
+    --couleur-danger:      #E63950;
+    --couleur-fond:        #EEF2F7;
+    --couleur-carte:       #FFFFFF;
+    --couleur-bordure:     #E3E8F0;
+    --couleur-texte:       #1B2559;
+    --couleur-muted:       #8B94B2;
+    --police: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: var(--police);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- Disposition générale de la page --- */
+.page-connexion {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* --- Panneau gauche (illustration/branding) --- */
+.panneau-gauche {
+    flex: 1;
+    background: linear-gradient(145deg, #1B2559 0%, #2D3A7C 50%, #4361EE 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+.panneau-gauche::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+    bottom: -150px;
+    left: -100px;
+}
+
+.panneau-gauche::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(114, 9, 183, 0.2);
+    border-radius: 50%;
+    top: -80px;
+    right: -60px;
+}
+
+/* Logo dans le panneau gauche */
+.logo-connexion {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.logo-connexion-icone {
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.logo-connexion-icone i {
+    color: #fff;
+    font-size: 22px;
+}
+
+.logo-connexion-nom {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.01em;
+}
+
+.logo-connexion-sstitre {
+    font-size: 10px;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 1px;
+}
+
+/* Contenu central du panneau gauche */
+.contenu-panneau {
+    position: relative;
+    z-index: 1;
+}
+
+.slogan-connexion {
+    font-size: 34px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 18px;
+    max-width: 380px;
+}
+
+.slogan-connexion span {
+    color: rgba(255,255,255,0.55);
+}
+
+.description-connexion {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.65;
+    max-width: 340px;
+}
+
+/* Statistiques dans le panneau gauche */
+.statistiques-panneau {
+    display: flex;
+    gap: 32px;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-panneau {
+    text-align: left;
+}
+
+.valeur-stat-panneau {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.label-stat-panneau {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+/* --- Panneau droit (formulaire) --- */
+.panneau-droite {
+    width: 480px;
+    background: var(--couleur-carte);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px;
+    flex-shrink: 0;
+}
+
+.en-tete-formulaire {
+    margin-bottom: 32px;
+}
+
+.titre-formulaire {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--couleur-texte);
+    margin-bottom: 6px;
+}
+
+.sous-titre-formulaire {
+    font-size: 14px;
+    color: var(--couleur-muted);
+}
+
+/* --- Formulaire de connexion --- */
+.groupe-champ {
+    margin-bottom: 20px;
+}
+
+.etiquette-champ {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--couleur-texte);
+    margin-bottom: 7px;
+}
+
+.enveloppe-champ {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.enveloppe-champ i.icone-prefixe {
+    position: absolute;
+    left: 13px;
+    font-size: 18px;
+    color: var(--couleur-muted);
+    pointer-events: none;
+}
+
+.champ-saisie {
+    width: 100%;
+    padding: 11px 13px 11px 42px;
+    border: 1.5px solid var(--couleur-bordure);
+    border-radius: 9px;
+    font-size: 14px;
+    font-family: var(--police);
+    color: var(--couleur-texte);
+    background: #F8FAFF;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.champ-saisie:focus {
+    border-color: var(--couleur-principale);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+.champ-saisie.invalide {
+    border-color: var(--couleur-danger);
+}
+
+.champ-saisie.invalide:focus {
+    box-shadow: 0 0 0 3px rgba(230, 57, 80, 0.1);
+}
+
+/* Bouton de visibilité du mot de passe */
+.bouton-visibilite {
+    position: absolute;
+    right: 13px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--couleur-muted);
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.bouton-visibilite:hover { color: var(--couleur-texte); }
+.bouton-visibilite i { font-size: 18px; }
+
+/* Message d'erreur sous un champ */
+.message-erreur {
+    font-size: 12px;
+    color: var(--couleur-danger);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    display: none;
+}
+
+.message-erreur.visible { display: flex; }
+.message-erreur i       { font-size: 13px; }
+
+/* Options sous le champ mot de passe */
+.options-connexion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.case-memoriser {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--couleur-muted);
+}
+
+.case-memoriser input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--couleur-principale);
+    cursor: pointer;
+}
+
+.lien-mot-de-passe-oublie {
+    font-size: 13px;
+    color: var(--couleur-principale);
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.lien-mot-de-passe-oublie:hover { opacity: 0.75; }
+
+/* Bouton de soumission */
+.bouton-connexion {
+    width: 100%;
+    padding: 13px;
+    background: var(--couleur-principale);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: var(--police);
+    cursor: pointer;
+    transition: all 0.22s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.bouton-connexion:hover:not(:disabled) {
+    background: #3251D4;
+    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.35);
+    transform: translateY(-1px);
+}
+
+.bouton-connexion:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.bouton-connexion .icone-chargement {
+    display: none;
+    animation: rotation 0.7s linear infinite;
+}
+
+@keyframes rotation {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Alerte générale (erreur de connexion) */
+.alerte-connexion {
+    padding: 12px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.alerte-connexion.erreur {
+    background: #FDEEF0;
+    color: #C42B3C;
+    border: 1px solid #FBBFC8;
+    display: flex;
+}
+
+.alerte-connexion i { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+
+/* Pied du formulaire */
+.pied-formulaire {
+    margin-top: 8px;
+    padding-top: 24px;
+    border-top: 1px solid var(--couleur-bordure);
+    text-align: center;
+    font-size: 12px;
+    color: var(--couleur-muted);
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+    .panneau-gauche {
+        display: none;
+    }
+
+    .panneau-droite {
+        width: 100%;
+        padding: 32px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .panneau-droite {
+        padding: 24px 16px;
+    }
+}
