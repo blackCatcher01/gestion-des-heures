@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\Exportable;
 use App\Models\Enseignant;
 use App\Models\AnneeAcademique;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -21,8 +20,6 @@ class EnseignantsExport implements
     WithTitle,
     ShouldAutoSize
 {
-    use Exportable;
-
     private $anneeActive;
 
     public function __construct()

@@ -240,11 +240,7 @@
         new Chart(contexte, {
             type: 'bar',
             data: {
-                labels: {!! json_encode(
-                    $heuresParDepartement->pluck('nom')->map(function ($nom) {
-                        return explode(' ', $nom);
-                    })
-                ) !!},
+                labels: {!! json_encode($heuresParDepartement->pluck('nom')) !!},
                 datasets: [{
                     label: 'Heures calculées',
                     data: {!! json_encode($heuresParDepartement->pluck('heures')) !!},
@@ -284,15 +280,10 @@
                         }
                     },
                     x: {
-                        grid: {
-                            display: false
-                        },
+                        grid: { display: false },
                         ticks: {
-                            color: '#8B94B2',
-                            font: {
-                                family: 'Plus Jakarta Sans, Inter, sans-serif',
-                                size: 11
-                            }
+                            font: { family: 'Plus Jakarta Sans, Inter, sans-serif', size: 11 },
+                            color: '#8B94B2'
                         }
                     }
                 }

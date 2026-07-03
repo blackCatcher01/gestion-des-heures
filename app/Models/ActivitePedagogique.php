@@ -39,6 +39,12 @@ class ActivitePedagogique extends Model
         return $this->belongsTo(User::class, 'validateur_id');
     }
 
+    // Association "porter" : une activité peut porter sur plusieurs ressources
+    public function ressources()
+    {
+        return $this->hasMany(RessourcePedagogique::class, 'activite_id');
+    }
+
     // Calcul automatique du volume horaire avant création
     protected static function booted(): void
     {

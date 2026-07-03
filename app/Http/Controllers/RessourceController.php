@@ -18,7 +18,7 @@ class RessourceController extends Controller
                 ->orderBy('numero_ordre')->get()
             : collect();
 
-        $ressources = RessourcePedagogique::with(['sequence.cours'])
+        $ressources = RessourcePedagogique::with(['sequence.cours', 'activite.enseignant'])
             ->when($request->cours_id, fn($q) =>
                 $q->whereHas('sequence', fn($q2) =>
                     $q2->where('cours_id', $request->cours_id)
@@ -32,6 +32,10 @@ class RessourceController extends Controller
             )
             ->orderBy('sequence_id')
             ->paginate(20);
+
+        $activites = \App\Models\ActivitePedagogique::with(['cours', 'enseignant'])
+            ->orderBy('cours_id')
+            ->get();
 
         $totalRessources = RessourcePedagogique::count();
         $nbPdf = RessourcePedagogique::where('type', 'pdf')->count();
@@ -49,7 +53,7 @@ class RessourceController extends Controller
         ];
 
         return view('ressources.index', compact(
-            'ressources', 'cours', 'sequences', 'statsRessources'
+            'ressources', 'cours', 'sequences', 'statsRessources', 'activites'
         ));
     }
 
@@ -60,6 +64,7 @@ class RessourceController extends Controller
             'titre'       => 'required|string|max:200',
             'type'        => 'required|in:pdf,video,quiz,interactif,evaluation',
             'url_moodle'  => 'nullable|url|max:500',
+            'activite_id' => 'nullable|exists:activites_pedagogiques,id',
         ]);
 
         RessourcePedagogique::create($validated);
@@ -74,6 +79,7 @@ class RessourceController extends Controller
             'titre'       => 'required|string|max:200',
             'type'        => 'required|in:pdf,video,quiz,interactif,evaluation',
             'url_moodle'  => 'nullable|url|max:500',
+            'activite_id' => 'nullable|exists:activites_pedagogiques,id',
         ]);
 
         $ressource->update($validated);

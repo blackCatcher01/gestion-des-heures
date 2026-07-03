@@ -169,6 +169,11 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                     @if($res->url_moodle)
                         <span class="badge badge-neutre">Moodle ✓</span>
                     @endif
+                    @if($res->activite)
+                        <span class="badge badge-violet" title="Produite via cette activité">
+                            <i class="bi bi-link-45deg"></i> {{ $res->activite->enseignant->nom_complet }}
+                        </span>
+                    @endif
                 </div>
             </div>
         @empty
@@ -200,6 +205,7 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                     <th>Type</th>
                     <th class="colonne-masquable">Séquence</th>
                     <th class="colonne-masquable">Cours</th>
+                    <th class="colonne-masquable">Activité liée</th>
                     <th>URL Moodle</th>
                     <th style="text-align:right">Actions</th>
                 </tr>
@@ -242,6 +248,16 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                     <td class="texte-secondaire-tableau colonne-masquable">
                         {{ Str::limit($res->sequence->cours->intitule, 30) }}
                     </td>
+                    <td class="texte-secondaire-tableau colonne-masquable">
+                        @if($res->activite)
+                            <span class="badge badge-violet" style="font-size:10px">
+                                <i class="bi bi-link-45deg"></i>
+                                {{ $res->activite->enseignant->nom_complet }}
+                            </span>
+                        @else
+                            —
+                        @endif
+                    </td>
                     <td>
                         @if($res->url_moodle)
                             <a href="{{ $res->url_moodle }}" target="_blank"
@@ -260,7 +276,8 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                                     {{ $res->sequence_id }},
                                     '{{ addslashes($res->titre) }}',
                                     '{{ $res->type }}',
-                                    '{{ addslashes($res->url_moodle ?? '') }}'
+                                    '{{ addslashes($res->url_moodle ?? '') }}',
+                                    {{ $res->activite_id ?? 'null' }}
                                 )">
                                 <i class="bi bi-pencil"></i>
                             </button>
@@ -275,7 +292,7 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6">
+                <tr><td colspan="7">
                     <div class="etat-vide">
                         <i class="bi bi-file-earmark-richtext"></i>
                         <p>Aucune ressource trouvée</p>
@@ -354,6 +371,29 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                     <input class="champ-input" type="url" name="url_moodle"
                            placeholder="https://moodle.uvci.edu.ci/…">
                 </div>
+                <div class="groupe-champ">
+                    <label class="champ-label">Activité liée (optionnel)</label>
+                    <select class="champ-input" name="activite_id" id="creer-activite">
+                        <option value="">— Aucune activité —</option>
+                        @foreach($cours as $c)
+                            @php $acts = $activites->where('cours_id', $c->id) @endphp
+                            @if($acts->isNotEmpty())
+                                <optgroup label="{{ $c->intitule }} ({{ $c->niveau }})">
+                                    @foreach($acts as $a)
+                                        <option value="{{ $a->id }}">
+                                            {{ $a->enseignant->nom_complet }} —
+                                            {{ $a->type_action === 'creation' ? 'Création' : 'Mise à jour' }}
+                                            (Niveau {{ $a->niveau_contenu }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                        @endforeach
+                    </select>
+                    <div style="font-size:11px;color:var(--couleur-texte-secondaire);margin-top:4px">
+                        Rattache cette ressource à la déclaration d'activité qui l'a produite.
+                    </div>
+                </div>
             </form>
         </div>
         <div class="modal-foot">
@@ -414,6 +454,26 @@ select.champ-input{appearance:none;cursor:pointer;background-image:url("data:ima
                     <input class="champ-input" type="url" name="url_moodle"
                            id="mod-url" placeholder="https://moodle.uvci.edu.ci/…">
                 </div>
+                <div class="groupe-champ">
+                    <label class="champ-label">Activité liée (optionnel)</label>
+                    <select class="champ-input" name="activite_id" id="mod-activite">
+                        <option value="">— Aucune activité —</option>
+                        @foreach($cours as $c)
+                            @php $acts = $activites->where('cours_id', $c->id) @endphp
+                            @if($acts->isNotEmpty())
+                                <optgroup label="{{ $c->intitule }} ({{ $c->niveau }})">
+                                    @foreach($acts as $a)
+                                        <option value="{{ $a->id }}">
+                                            {{ $a->enseignant->nom_complet }} —
+                                            {{ $a->type_action === 'creation' ? 'Création' : 'Mise à jour' }}
+                                            (Niveau {{ $a->niveau_contenu }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
             </form>
         </div>
         <div class="modal-foot">
@@ -454,13 +514,14 @@ function ouvrirCreer() {
     document.body.style.overflow = 'hidden';
 }
 
-function ouvrirModifier(id, seqId, titre, type, url) {
+function ouvrirModifier(id, seqId, titre, type, url, activiteId) {
     var form = document.getElementById('form-modifier');
     form.action = '/ressources/' + id;
-    document.getElementById('mod-seq').value   = seqId;
-    document.getElementById('mod-titre').value = titre;
-    document.getElementById('mod-type').value  = type;
-    document.getElementById('mod-url').value   = url;
+    document.getElementById('mod-seq').value      = seqId;
+    document.getElementById('mod-titre').value    = titre;
+    document.getElementById('mod-type').value     = type;
+    document.getElementById('mod-url').value      = url;
+    document.getElementById('mod-activite').value = activiteId || '';
     document.getElementById('modal-modifier').classList.add('open');
     document.body.style.overflow = 'hidden';
 }
