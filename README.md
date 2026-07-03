@@ -1,88 +1,239 @@
 # Gestion des Heures — UVCI
 
-Application de gestion et de calcul automatisé des heures d'enseignement pour les enseignants de l'UVCI (déclaration d'activités pédagogiques, calcul du volume horaire, validation hiérarchique, états récapitulatifs).
+Application web développée avec **Laravel** permettant de gérer, suivre et calculer automatiquement les heures d'enseignement des enseignants de l'Université Virtuelle de Côte d'Ivoire (UVCI).
+
+L'application facilite la déclaration des activités pédagogiques, le calcul du volume horaire, la validation hiérarchique ainsi que la génération de fiches individuelles en PDF et d'états récapitulatifs en Excel.
+
+---
+
+## Fonctionnalités
+
+- Gestion des enseignants
+- Gestion des départements
+- Gestion des années académiques
+- Gestion des cours
+- Gestion des séquences pédagogiques
+- Gestion des ressources pédagogiques
+- Déclaration des activités pédagogiques
+- Validation ou rejet des activités
+- Calcul automatique des volumes horaires
+- Tableau de bord avec statistiques
+- Génération de fiches individuelles en PDF
+- Export des états récapitulatifs en Excel
+- Gestion des utilisateurs et des rôles
+
+---
 
 ## Stack technique
 
-- **PHP** 8.3+ / **Laravel** 13.8
-- **Base de données** : SQLite par défaut (configurable en MySQL/PostgreSQL via `.env`)
-- **barryvdh/laravel-dompdf** — génération des fiches PDF
-- **maatwebsite/excel** — exports Excel
+- **Framework :** Laravel 13
+- **Langage :** PHP 8.3+
+- **Base de données :** MySQL (par défaut), compatible SQLite et PostgreSQL
+- **Interface :** Blade, Bootstrap
+- **PDF :** barryvdh/laravel-dompdf
+- **Excel :** maatwebsite/excel
+
+---
 
 ## Installation
 
+### 1. Cloner le projet
+
+```bash
+git clone https://github.com/blackCatcher01/gestion-des-heures.git
+cd gestion-des-heures
+```
+
+### 2. Installer les dépendances
+
 ```bash
 composer install
+```
+
+### 3. Créer le fichier d'environnement
+
+```bash
 cp .env.example .env
+```
+
+### 4. Générer la clé de l'application
+
+```bash
 php artisan key:generate
-touch database/database.sqlite
+```
+
+### 5. Configurer la base de données
+
+L'application utilise **MySQL** par défaut.
+
+Modifier les informations de connexion dans le fichier `.env` :
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=gestion_heures
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> Il est également possible d'utiliser SQLite ou PostgreSQL en modifiant les variables `DB_CONNECTION` et `DB_*`.
+
+### 6. Exécuter les migrations et les seeders
+
+```bash
 php artisan migrate --seed
+```
+
+### 7. Démarrer le serveur
+
+```bash
 php artisan serve
 ```
 
-L'application est alors disponible sur `http://localhost:8000`.
+L'application sera accessible à l'adresse :
 
-> Si vous préférez MySQL/PostgreSQL, modifiez `DB_CONNECTION` et les variables `DB_*` dans `.env` avant `php artisan migrate`.
+```
+http://localhost:8000
+```
 
-## Comptes de test (créés par le seeder)
+---
+
+## Comptes de démonstration
 
 | Rôle | Email | Mot de passe |
-|---|---|---|
+|------|-------|--------------|
 | Administrateur | admin@uvci.edu.ci | admin2026 |
 | Secrétaire | secretaire@uvci.edu.ci | secret2026 |
-| Enseignant (Konan Yao Jean-Paul) | konan.yao@uvci.edu.ci | prof2026 |
+| Enseignant | konan.yao@uvci.edu.ci | prof2026 |
 
-Une année académique 2025-2026 est créée active par défaut, ainsi que le département INFO et les coefficients de calcul de base.
+Les données de démonstration comprennent :
 
-## Rôles et accès
+- une année académique active (2025–2026) ;
+- un département **INFO** ;
+- les coefficients de calcul de base.
 
-- **admin** : accès complet, y compris les Paramètres (années, coefficients, départements, comptes utilisateurs).
-- **secretaire** : gestion des enseignants, cours, séquences, ressources, activités, validations, calcul des heures, états récapitulatifs — sans accès aux Paramètres.
-- **enseignant** : accès à son Espace enseignant uniquement (déclaration de ses activités, consultation de son volume horaire, téléchargement de sa fiche).
+---
 
-## Fonctionnement du calcul des heures
+## Gestion des rôles
 
-Le volume horaire d'une activité pédagogique est calculé automatiquement selon la formule :
+### Administrateur
 
+Dispose d'un accès complet à l'application :
+
+- gestion des utilisateurs ;
+- gestion des départements ;
+- gestion des années académiques ;
+- gestion des coefficients de calcul ;
+- accès à toutes les fonctionnalités métier.
+
+### Secrétaire
+
+Peut gérer :
+
+- les enseignants ;
+- les cours ;
+- les séquences pédagogiques ;
+- les ressources pédagogiques ;
+- les activités pédagogiques ;
+- les validations ;
+- le calcul des heures ;
+- les états récapitulatifs.
+
+Le secrétaire n'a pas accès aux paramètres de l'application.
+
+### Enseignant
+
+Dispose d'un espace personnel permettant de :
+
+- déclarer ses activités pédagogiques ;
+- consulter son volume horaire ;
+- télécharger sa fiche individuelle.
+
+---
+
+## Calcul du volume horaire
+
+Le volume horaire d'une activité pédagogique est calculé automatiquement selon la formule suivante :
+
+```text
+Volume horaire = Nombre de séquences × Coefficient
 ```
-volume_horaire = nombre_sequences (du cours) x coefficient (type_action + niveau_contenu)
+
+Le coefficient dépend de deux paramètres :
+
+### Type d'action
+
+- Création
+- Mise à jour
+
+### Niveau de contenu
+
+- Niveau 1 : contenus simples
+- Niveau 2 : contenus interactifs
+- Niveau 3 : simulations
+
+Les coefficients sont entièrement paramétrables par l'administrateur depuis le menu **Paramètres**.
+
+---
+
+## Modèle de données
+
+Les principales relations sont les suivantes :
+
+- Un **Enseignant** appartient à un **Département**.
+- Un **Cours** appartient à une **Année académique**.
+- Un **Cours** possède plusieurs **Séquences pédagogiques**.
+- Une **Séquence pédagogique** possède plusieurs **Ressources pédagogiques**.
+- Une **Activité pédagogique** est réalisée par un enseignant sur un cours.
+- Une activité peut être associée à une ou plusieurs ressources pédagogiques.
+- Une activité suit le workflow suivant :
+
+```text
+En attente
+      │
+      ▼
+  Validée
+      ou
+  Rejetée
 ```
 
-Les coefficients sont paramétrables dans Paramètres -> Coefficients de calcul et dépendent de deux critères :
-- type_action : creation ou mise_a_jour
-- niveau_contenu : 1 (contenus simples), 2 (interactifs), 3 (simulations)
-
-## Modèle de données — points clés
-
-- Enseignant appartient à un Departement et réalise des ActivitePedagogique.
-- ActivitePedagogique est rattachée à une AnneeAcademique (via le Cours concerné) et peut porter sur une ou plusieurs RessourcePedagogique (champ activite_id, optionnel — à renseigner manuellement lors de la création/modification d'une ressource).
-- Cours structure des SequencePedagogique, qui contiennent des RessourcePedagogique.
-- Une activité passe par les statuts en_attente -> valide / rejete (workflow de validation).
+---
 
 ## Routes principales
 
 | Route | Accès | Description |
-|---|---|---|
-| /tableau-de-bord | admin, secretaire | Vue d'ensemble et statistiques |
-| /enseignants | admin, secretaire | Gestion des enseignants |
-| /cours | admin, secretaire | Gestion des cours |
-| /sequences | admin, secretaire | Gestion des séquences pédagogiques |
-| /ressources | admin, secretaire | Gestion des ressources pédagogiques |
-| /activites | admin, secretaire | Déclaration et suivi des activités |
-| /validations | admin, secretaire | Validation/rejet des activités en attente |
-| /calcul-heures | admin, secretaire | Calcul et détail du volume horaire par enseignant |
-| /etats-recapitulatifs | admin, secretaire | Exports (fiches PDF, état global Excel) |
-| /parametres | admin | Années, coefficients, départements, comptes |
-| /espace-enseignant | enseignant | Auto-déclaration et suivi personnel |
+|--------|--------|-------------|
+| `/tableau-de-bord` | Admin, Secrétaire | Tableau de bord |
+| `/enseignants` | Admin, Secrétaire | Gestion des enseignants |
+| `/cours` | Admin, Secrétaire | Gestion des cours |
+| `/sequences` | Admin, Secrétaire | Gestion des séquences pédagogiques |
+| `/ressources` | Admin, Secrétaire | Gestion des ressources pédagogiques |
+| `/activites` | Admin, Secrétaire | Déclaration et suivi des activités |
+| `/validations` | Admin, Secrétaire | Validation des activités |
+| `/calcul-heures` | Admin, Secrétaire | Calcul du volume horaire |
+| `/etats-recapitulatifs` | Admin, Secrétaire | Exports PDF et Excel |
+| `/parametres` | Admin | Gestion des paramètres |
+| `/espace-enseignant` | Enseignant | Espace personnel |
+
+---
 
 ## Commandes utiles
 
+Réinitialiser complètement la base de données :
+
 ```bash
-php artisan migrate:fresh --seed   # réinitialiser la base avec les données de démo
-php artisan route:list             # lister les routes
-php artisan optimize:clear         # vider les caches après modification de config/routes
+php artisan migrate:fresh --seed
 ```
 
-## Notes de version
+Lister les routes :
 
-- La colonne `ressources_pedagogiques.activite_id` (association "porter" du MCD) a été ajoutée par la migration `2026_07_03_192730_add_activite_id_to_ressources_pedagogiques_table`. Elle est nullable : les ressources créées avant cette migration ne sont pas rattachées automatiquement à une activité.
+```bash
+php artisan route:list
+```
+
+Vider les caches Laravel :
+
+```bash
+php artisan optimize:clear
+```
