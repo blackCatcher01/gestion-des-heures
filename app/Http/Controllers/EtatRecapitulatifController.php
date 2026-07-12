@@ -75,6 +75,9 @@ class EtatRecapitulatifController extends Controller
 
     public function exportExcel()
     {
-        return (new \App\Exports\EnseignantsExport)->download('etat_global_heures.xlsx');
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\EnseignantsExport,
+            'etat_global_heures.xlsx'
+        );
     }
 }
