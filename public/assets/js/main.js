@@ -49,6 +49,46 @@ document.addEventListener('keydown', function (e) {
 });
 
 /* ----------------------------------------------------------------
+   MENU DÉROULANT DU PROFIL (barre de navigation)
+   ---------------------------------------------------------------- */
+
+(function () {
+    const menuProfil = document.getElementById('menu-profil-nav');
+    const boutonProfil = document.getElementById('bouton-profil-nav');
+
+    if (!menuProfil || !boutonProfil) return;
+
+    function ouvrirMenuProfil() {
+        menuProfil.classList.add('ouvert');
+        boutonProfil.setAttribute('aria-expanded', 'true');
+    }
+
+    function fermerMenuProfil() {
+        menuProfil.classList.remove('ouvert');
+        boutonProfil.setAttribute('aria-expanded', 'false');
+    }
+
+    boutonProfil.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (menuProfil.classList.contains('ouvert')) {
+            fermerMenuProfil();
+        } else {
+            ouvrirMenuProfil();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!menuProfil.contains(e.target)) {
+            fermerMenuProfil();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') fermerMenuProfil();
+    });
+})();
+
+/* ----------------------------------------------------------------
    MARQUAGE DU LIEN ACTIF selon l'URL courante
    ---------------------------------------------------------------- */
 

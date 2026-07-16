@@ -26,6 +26,23 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $utilisateur = Auth::user();
+
+        // Si la 2FA est activée et confirmée sur ce compte, on ne termine pas la
+        // connexion tout de suite : on la met en attente et on redirige vers l'étape
+        // de vérification du code.
+        if ($utilisateur->possedeDeuxFacteursActifs()) {
+            $seSouvenirDeMoi = $request->boolean('remember');
+
+            Auth::guard('web')->logout();
+
+            $request->session()->regenerate();
+            $request->session()->put('login.id', $utilisateur->id);
+            $request->session()->put('login.remember', $seSouvenirDeMoi);
+
+            return redirect()->route('two-factor.challenge');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->route('redirect');

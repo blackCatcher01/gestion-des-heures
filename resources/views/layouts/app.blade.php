@@ -164,11 +164,48 @@
                     <i class="bi bi-bell"></i>
                 </button>
                 <div class="separateur-nav"></div>
-                <div class="mini-profil-nav">
-                    <div class="mini-avatar-nav">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                <div class="menu-profil-nav" id="menu-profil-nav">
+                    <button type="button" class="mini-profil-nav" id="bouton-profil-nav" aria-haspopup="true" aria-expanded="false">
+                        <div class="mini-avatar-nav">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        </div>
+                        <span class="mini-nom-nav">{{ auth()->user()->name }}</span>
+                        <i class="bi bi-chevron-down" style="font-size:12px;color:var(--couleur-texte-secondaire)"></i>
+                    </button>
+
+                    <div class="menu-deroulant-profil" id="menu-deroulant-profil">
+                        <div class="entete-menu-profil">
+                            <div class="nom-menu-profil">{{ auth()->user()->name }}</div>
+                            <div class="email-menu-profil">{{ auth()->user()->email }}</div>
+                        </div>
+
+                        <div class="corps-menu-profil">
+                            <a href="{{ route('profile.edit') }}#informations" class="lien-menu-profil">
+                                <i class="bi bi-person"></i>Modifier mes informations
+                            </a>
+                            <a href="{{ route('profile.edit') }}#mot-de-passe" class="lien-menu-profil">
+                                <i class="bi bi-key"></i>Changer le mot de passe
+                            </a>
+                            <a href="{{ route('profile.edit') }}#deux-facteurs" class="lien-menu-profil">
+                                <i class="bi bi-shield-lock"></i>Authentification à deux facteurs
+                                @if(auth()->user()->possedeDeuxFacteursActifs())
+                                    <span class="pastille-menu-profil">Activée</span>
+                                @endif
+                            </a>
+                            <a href="{{ route('profile.edit') }}" class="lien-menu-profil">
+                                <i class="bi bi-gear"></i>Tous les paramètres du compte
+                            </a>
+                        </div>
+
+                        <div class="pied-menu-profil">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="lien-menu-profil lien-menu-profil-danger">
+                                    <i class="bi bi-box-arrow-right"></i>Se déconnecter
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <span class="mini-nom-nav">{{ auth()->user()->name }}</span>
                 </div>
             </div>
         </header>

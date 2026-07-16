@@ -117,6 +117,34 @@ Route::middleware(['auth'])->group(function () {
             default               => redirect()->route('login'),
         };
     })->name('redirect');
+
+    // Mon compte (informations, mot de passe, 2FA, suppression)
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])
+         ->name('profile.edit');
+    Route::patch('/profile', [App\Http\Controllers\ProfileController::class, 'update'])
+         ->name('profile.update');
+    Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])
+         ->name('profile.destroy');
+});
+
+// ─── Authentification à deux facteurs (compte connecté) ──────────
+Route::middleware(['auth'])->group(function () {
+    Route::post('/user/two-factor-authentication', [App\Http\Controllers\TwoFactorAuthenticationController::class, 'store'])
+         ->name('two-factor.enable');
+    Route::post('/user/confirmed-two-factor-authentication', [App\Http\Controllers\TwoFactorAuthenticationController::class, 'confirm'])
+         ->name('two-factor.confirm');
+    Route::post('/user/two-factor-recovery-codes', [App\Http\Controllers\TwoFactorAuthenticationController::class, 'regenererCodesRecuperation'])
+         ->name('two-factor.recovery-codes');
+    Route::delete('/user/two-factor-authentication', [App\Http\Controllers\TwoFactorAuthenticationController::class, 'destroy'])
+         ->name('two-factor.disable');
+});
+
+// ─── Vérification à deux facteurs pendant la connexion (session en attente) ──
+Route::middleware(['guest'])->group(function () {
+    Route::get('/two-factor-challenge', [App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'show'])
+         ->name('two-factor.challenge');
+    Route::post('/two-factor-challenge', [App\Http\Controllers\Auth\TwoFactorChallengeController::class, 'store'])
+         ->name('two-factor.challenge.store');
 });
 
 // Routes d'authentification générées par Breeze
