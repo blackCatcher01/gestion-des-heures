@@ -16,8 +16,16 @@ class Cours extends Model
         'nombre_credits', 'annee_academique_id',
     ];
 
-    // nombre_sequences est calculé par MySQL, on ne le remplit pas
-    protected $guarded = ['nombre_sequences'];
+    // nombre_sequences n'est plus une colonne en base (voir migration
+    // 2026_07_16_101500) : elle est calculée à la lecture à partir de
+    // la valeur courante de parametres_calcul.sequences_par_credit,
+    // pour rester cohérente si l'administrateur modifie ce paramètre.
+    protected $appends = ['nombre_sequences'];
+
+    public function getNombreSequencesAttribute(): int
+    {
+        return (int) $this->nombre_credits * ParametreCalcul::sequencesParCredit();
+    }
 
     // Relation vers l'année académique
     public function anneeAcademique()

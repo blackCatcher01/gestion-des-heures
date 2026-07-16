@@ -28,4 +28,17 @@ class ParametreCalcul extends Model
 
         return $parametre ? (float) $parametre->coefficient : 0;
     }
+
+    /**
+     * Valeur courante de sequences_par_credit.
+     *
+     * Correctif audit (Haute) : ce point de lecture unique remplace
+     * l'ancienne colonne générée cours.nombre_sequences (STORED × 40),
+     * qui figeait la valeur 40 en dur et divergeait silencieusement
+     * dès que l'administrateur modifiait ce paramètre.
+     */
+    public static function sequencesParCredit(): int
+    {
+        return (int) (static::query()->value('sequences_par_credit') ?? 40);
+    }
 }
