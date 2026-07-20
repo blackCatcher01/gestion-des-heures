@@ -42,17 +42,11 @@ class User extends Authenticatable
         'password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes',
     ];
 
-    /**
-     * L'authentification à deux facteurs est-elle active et confirmée pour ce compte ?
-     */
     public function possedeDeuxFacteursActifs(): bool
     {
         return ! is_null($this->two_factor_secret) && ! is_null($this->two_factor_confirmed_at);
     }
 
-    // Ajouter en bas de la classe, avant la dernière accolade
-
-    // Un user peut avoir un profil enseignant
     public function enseignant()
     {
         return $this->hasOne(Enseignant::class);
@@ -74,7 +68,6 @@ class User extends Authenticatable
         return $this->role === 'enseignant';
     }
 
-    // Activités qu'il a validées (en tant que secrétaire/admin)
     public function activitesValidees()
     {
         return $this->hasMany(ActivitePedagogique::class, 'validateur_id');

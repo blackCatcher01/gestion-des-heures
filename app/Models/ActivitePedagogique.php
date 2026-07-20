@@ -59,14 +59,6 @@ class ActivitePedagogique extends Model
             $activite->appliquerCalcul();
         });
 
-        // Correctif audit (Moyenne) : comportement d'édition avant
-        // validation désormais explicite.
-        // - Une activité verrouillée ne peut plus être modifiée.
-        // - Si un champ source du calcul change (type_action,
-        //   niveau_contenu, cours_id), le volume horaire, les inputs
-        //   et la signature d'intégrité sont recalculés automatiquement,
-        //   plutôt que de laisser volume_horaire divergent des champs
-        //   affichés à l'enseignant.
         static::updating(function (ActivitePedagogique $activite) {
             if ($activite->getOriginal('statut') === 'verrouille') {
                 throw new \RuntimeException(
@@ -80,16 +72,7 @@ class ActivitePedagogique extends Model
         });
     }
 
-    /**
-     * Calcule le volume horaire à partir du cours et de la grille de
-     * coefficients courante, puis fige les paramètres utilisés dans
-     * calculation_inputs et leur signature dans calculation_hash.
-     *
-     * Correctif audit (Critique) : auparavant, seul volume_horaire
-     * était stocké — une modification directe en base était
-     * indétectable. calculation_hash permet de vérifier a posteriori
-     * qu'un volume horaire n'a pas été altéré (voir estIntegre()).
-     */
+
     protected function appliquerCalcul(): void
     {
         $cours = Cours::find($this->cours_id);
@@ -133,11 +116,6 @@ class ActivitePedagogique extends Model
         );
     }
 
-    /**
-     * Vérifie que volume_horaire n'a pas été altéré depuis son
-     * dernier calcul, en recomparant la signature stockée à celle
-     * recalculée à partir de calculation_inputs.
-     */
     public function estIntegre(): bool
     {
         if (! $this->calculation_inputs || ! $this->calculation_hash) {
